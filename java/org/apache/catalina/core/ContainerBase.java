@@ -1112,6 +1112,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase
 
 
     /**
+     * 周期性处理任务
      * Execute a periodic task, such as reloading, etc. This method will be
      * invoked inside the classloading context of this container. Unexpected
      * throwables will be caught and logged.
@@ -1148,6 +1149,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase
             }
             current = current.getNext();
         }
+        //触发周期性任务处理事件
         fireLifecycleEvent(Lifecycle.PERIODIC_EVENT, null);
     }
 
@@ -1278,6 +1280,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase
                     log.error(sm.getString("containerBase.backgroundProcess.error"), e);
                 }
             }
+            //开启一个周期性处理任务的线程
             backgroundProcessorFuture = Container.getService(this).getServer().getUtilityExecutor()
                     .scheduleWithFixedDelay(new ContainerBackgroundProcessor(),
                             backgroundProcessorDelay, backgroundProcessorDelay,

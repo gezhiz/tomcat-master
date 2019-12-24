@@ -74,6 +74,7 @@ import org.apache.tomcat.util.modeler.Registry;
 import org.apache.tomcat.util.res.StringManager;
 
 /**
+ * host容器的监听器
  * Startup event listener for a <b>Host</b> that configures the properties
  * of that Host, and the associated defined contexts.
  *
@@ -302,6 +303,7 @@ public class HostConfig implements LifecycleListener {
 
         // Process the event that has occurred
         if (event.getType().equals(Lifecycle.PERIODIC_EVENT)) {
+            //热部署检查
             check();
         } else if (event.getType().equals(Lifecycle.BEFORE_START_EVENT)) {
             beforeStart();
