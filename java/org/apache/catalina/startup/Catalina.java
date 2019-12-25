@@ -416,6 +416,7 @@ public class Catalina {
         digester.addRule("Server/Service/Engine",
                          new SetParentClassLoaderRule(parentClassLoader));
         addClusterRuleSet(digester, "Server/Service/Engine/Cluster/");
+        ClassLoader classLoader = this.getClass().getClassLoader();
 
         long t2=System.currentTimeMillis();
         if (log.isDebugEnabled()) {

@@ -4934,6 +4934,7 @@ public class StandardContext extends ContainerBase
         if (ok) {
             resourcesStart();
         }
+        ClassLoader classLoader = this.getClass().getClassLoader();
 
         if (getLoader() == null) {
             WebappLoader webappLoader = new WebappLoader(getParentClassLoader());
@@ -5183,7 +5184,7 @@ public class StandardContext extends ContainerBase
                 }
             }
 
-            // Start ContainerBackgroundProcessor thread
+            // Start ContainerBackgroundProcessor thread 开启热加载等后台周期性任务
             super.threadStart();
         } finally {
             // Unbinding thread

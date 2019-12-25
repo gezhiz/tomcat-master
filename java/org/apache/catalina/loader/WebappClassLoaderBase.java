@@ -862,6 +862,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                         new PrivilegedFindClassByName(name);
                     clazz = AccessController.doPrivileged(dp);
                 } else {
+                    //1、现在web应用目录下查找类
                     clazz = findClassInternal(name);
                 }
             } catch(AccessControlException ace) {
@@ -875,6 +876,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
             if ((clazz == null) && hasExternalRepositories) {
                 try {
+                    //web目录下没有找到，则交给父类加载器加载
                     clazz = super.findClass(name);
                 } catch(AccessControlException ace) {
                     log.warn(sm.getString("webappClassLoader.securityException", name,
@@ -886,6 +888,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                     throw e;
                 }
             }
+            //父类如果没有找到，就抛出未找到异常
             if (clazz == null) {
                 if (log.isDebugEnabled())
                     log.debug("    --> Returning ClassNotFoundException");
@@ -1190,6 +1193,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
 
 
     /**
+     * 为何要打破双亲委派机制：Servlet规定这样做的，优先加载web应用目录下的类，只要这个类不覆盖jre核心类
      * Load the class with the specified name, searching using the following
      * algorithm until it finds and returns the class.  If the class cannot
      * be found, returns <code>ClassNotFoundException</code>.
@@ -1236,6 +1240,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (0.1) Check our previously loaded class cache
+            // 0.1 检查缓存，是否已经加载过
             clazz = JreCompat.isGraalAvailable() ? null : findLoadedClass(name);
             if (clazz != null) {
                 if (log.isDebugEnabled())
@@ -1248,6 +1253,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             // (0.2) Try loading the class with the system class loader, to prevent
             //       the webapp from overriding Java SE classes. This implements
             //       SRV.10.7.2
+            // 0.2 防止覆盖java se的类，尝试用ExtClassLoader加载
             String resourceName = binaryNameToPath(name, false);
 
             ClassLoader javaseLoader = getJavaseClassLoader();
@@ -1294,6 +1300,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (0.5) Permission to access this class when using a SecurityManager
+            // 验证当前类的加载是否有权限
             if (securityManager != null) {
                 int i = name.lastIndexOf('.');
                 if (i >= 0) {
@@ -1310,6 +1317,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             boolean delegateLoad = delegate || filter(name, true);
 
             // (1) Delegate to our parent if requested
+            // 1 如果有需要，使用父类加载器加载
             if (delegateLoad) {
                 if (log.isDebugEnabled())
                     log.debug("  Delegating to parent classloader1 " + parent);
@@ -1328,6 +1336,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (2) Search local repositories
+            // 2 在本地查找并加载该类
             if (log.isDebugEnabled())
                 log.debug("  Searching local repositories");
             try {
@@ -1344,6 +1353,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (3) Delegate to parent unconditionally
+            // 3 本地如果未加载成功，则代理给父加载器加载
             if (!delegateLoad) {
                 if (log.isDebugEnabled())
                     log.debug("  Delegating to parent classloader at end: " + parent);

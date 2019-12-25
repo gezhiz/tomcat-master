@@ -24,5 +24,9 @@ Type is <%=request.getDispatcherType()%>
   }
   Date date = new Date(System.currentTimeMillis());
   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+  ClassLoader classLoader = this.getClass().getClassLoader();
+  ClassLoader parentClassLoader = classLoader.getParent();
+  System.out.println(classLoader.toString());
+  System.out.println(parentClassLoader.toString());
 %>
 Completed async request at <%=sdf.format(date)%>

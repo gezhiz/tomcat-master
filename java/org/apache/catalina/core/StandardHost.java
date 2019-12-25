@@ -838,6 +838,7 @@ public class StandardHost extends ContainerBase implements Host {
                         errorValve), t);
             }
         }
+        //调用父类的startInternal方法，父类方法会启动一个monitor线程池，用来执行周期性任务
         super.startInternal();
     }
 

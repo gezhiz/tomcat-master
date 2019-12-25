@@ -133,6 +133,8 @@ public final class Bootstrap {
      */
     private Object catalinaDaemon = null;
 
+    //commonLoader,catalinaLoader,sharedLoader都会交给父类加载器去加载，
+    //他们都是AppClassLoader类型的对象,而且存在父子关系
     ClassLoader commonLoader = null;
     ClassLoader catalinaLoader = null;
     ClassLoader sharedLoader = null;
@@ -252,6 +254,8 @@ public final class Bootstrap {
 
         initClassLoaders();
 
+        //设置上下文类加载器
+        //spring在加载类时，就是用的这个类加载
         Thread.currentThread().setContextClassLoader(catalinaLoader);
 
         SecurityClassLoad.securityClassLoad(catalinaLoader);
@@ -259,6 +263,7 @@ public final class Bootstrap {
         // Load our startup class and call its process() method
         if (log.isDebugEnabled())
             log.debug("Loading startup class");
+        //使用反射的方式加载Catalina
         Class<?> startupClass = catalinaLoader.loadClass("org.apache.catalina.startup.Catalina");
         Object startupInstance = startupClass.getConstructor().newInstance();
 
@@ -270,6 +275,7 @@ public final class Bootstrap {
         paramTypes[0] = Class.forName("java.lang.ClassLoader");
         Object paramValues[] = new Object[1];
         paramValues[0] = sharedLoader;
+        //使用反射的方式 调用Catalina的类的setParaentClassLoader方法
         Method method =
             startupInstance.getClass().getMethod(methodName, paramTypes);
         method.invoke(startupInstance, paramValues);
